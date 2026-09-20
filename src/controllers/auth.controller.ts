@@ -35,13 +35,13 @@ export async function login(req: Request, res: Response): Promise<any> {
             const refreshToken = jwt.sign({
                 userId: user._id,
                 sessionId: sessionId
-            }, process.env.JWT_REFRESH_SECRET!, {expiresIn: '7d'});
+            }, process.env.JWT_REFRESH_SECRET!, { expiresIn: '7d' });
 
 
             const accessToken = jwt.sign({
                 userId: user._id,
                 sessionId: sessionId
-            }, process.env.JWT_ACCESS_SECRET!, {expiresIn: '15m'});
+            }, process.env.JWT_ACCESS_SECRET!, { expiresIn: '15m' });
 
 
             res.cookie('refreshToken', refreshToken, {
@@ -56,7 +56,7 @@ export async function login(req: Request, res: Response): Promise<any> {
                 sameSite: 'none'
             });
 
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 message: 'User login successfully',
                 user: {
@@ -73,57 +73,57 @@ export async function login(req: Request, res: Response): Promise<any> {
         const newUser = await userModel.create({
             name,
             email,
-            avatar 
+            avatar
         });
 
 
         const sessionData = {
-                userId: newUser._id,
-                userAgent: req.headers['user-agent'],
-                ip: req.ip
+            userId: newUser._id,
+            userAgent: req.headers['user-agent'],
+            ip: req.ip
+        }
+
+        const sessionId = crypto.randomUUID();
+        const redisKey: string = `session:${newUser._id}:${sessionId}`;
+
+        await redisClient.set(redisKey, JSON.stringify(sessionData), {
+            EX: 604800
+        });
+
+
+        const refreshToken = jwt.sign({
+            userId: newUser._id,
+            sessionId: sessionId
+        }, process.env.JWT_REFRESH_SECRET!, { expiresIn: '7d' });
+
+
+        const accessToken = jwt.sign({
+            userId: newUser._id,
+            sessionId: sessionId
+        }, process.env.JWT_ACCESS_SECRET!, { expiresIn: '15m' });
+
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        });
+
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        });
+
+        return res.status(201).json({
+            success: true,
+            message: 'User Registerd successfully',
+            user: {
+                name: newUser.name,
+                email: newUser.email,
+                avatar: newUser.avatar
             }
-
-            const sessionId = crypto.randomUUID();
-            const redisKey: string = `session:${newUser._id}:${sessionId}`;
-
-            await redisClient.set(redisKey, JSON.stringify(sessionData), {
-                EX: 604800
-            });
-
-
-            const refreshToken = jwt.sign({
-                userId: newUser._id,
-                sessionId: sessionId
-            }, process.env.JWT_REFRESH_SECRET!, {expiresIn: '7d'});
-
-
-            const accessToken = jwt.sign({
-                userId: newUser._id,
-                sessionId: sessionId
-            }, process.env.JWT_ACCESS_SECRET!, {expiresIn: '15m'});
-
-
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: true,
-                sameSite: 'none'
-            });
-
-            res.cookie('accessToken', accessToken, {
-                httpOnly: true,
-                secure: true,
-                sameSite: 'none'
-            });
-
-            res.status(201).json({
-                success: true,
-                message: 'User Registerd successfully',
-                user: {
-                    name: newUser.name,
-                    email: newUser.email,
-                    avatar: newUser.avatar
-                }
-            });
+        });
 
 
 
