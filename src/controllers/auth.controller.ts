@@ -128,7 +128,7 @@ export async function login(req: Request, res: Response): Promise<any> {
 
 
 
-    } catch (error) {
+    } catch (error: any) {
         console.error(error);
         res.status(500).json({
             success: false,
@@ -136,3 +136,4 @@ export async function login(req: Request, res: Response): Promise<any> {
         })
     }
 }
+
