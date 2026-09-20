@@ -136,12 +136,3 @@ export async function login(req: Request, res: Response): Promise<any> {
         })
     }
 }
-
-
-export async function logout(req: Request, res: Response): Promise<any> {
-    try {
-        
-    } catch (error) {
-        console.error(error);
-    }
-}
