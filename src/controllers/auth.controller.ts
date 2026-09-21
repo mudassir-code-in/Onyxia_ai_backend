@@ -137,3 +137,35 @@ export async function login(req: Request, res: Response): Promise<any> {
     }
 }
 
+
+
+export async function logout(req: Request, res: Response): Promise<any> {
+    try {
+        
+        //decoded comes from middleware
+        const decoded = (req as any).user;
+
+        // Redis key
+        const redisKey: string = `session:${decoded.userId}:${decoded.sessionId}`;
+
+        // Delete session from Redis
+        await redisClient.del(redisKey);
+
+        // both accessToken and refreshToken clear form cookies
+        res.clearCookie('accessToken', {httpOnly: true, secure: true, sameSite: 'none'});
+        res.clearCookie('refreshToken', {httpOnly: true, secure: true, sameSite: 'none'});
+
+        // Final response
+        return res.status(200).json({
+            success: true,
+            message: 'User Logout successfully'
+        })
+        
+    } catch (error: any) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        })
+    }
+}
