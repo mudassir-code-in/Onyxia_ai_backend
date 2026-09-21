@@ -162,7 +162,7 @@ export async function logout(req: Request, res: Response): Promise<any> {
         })
         
     } catch (error: any) {
-        console.error(error);
+        console.error('Logout api error', error);
         return res.status(500).json({
             success: false,
             message: 'Internal server error'
