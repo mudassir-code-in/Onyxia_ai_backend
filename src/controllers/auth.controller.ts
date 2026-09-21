@@ -129,7 +129,7 @@ export async function login(req: Request, res: Response): Promise<any> {
 
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({
             success: false,
             message: 'Internal server error'
