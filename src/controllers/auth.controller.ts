@@ -18,44 +18,51 @@ export async function login(req: Request, res: Response): Promise<any> {
         // if there is a user in the database
         if (user) {
 
+            // This is session Data
             const sessionData = {
                 userId: user._id,
                 userAgent: req.headers['user-agent'],
                 ip: req.ip
             }
 
+            // Creating session id
             const sessionId = crypto.randomUUID();
+
+            // Redis key
             const redisKey: string = `session:${user._id}:${sessionId}`;
 
+            // Set Session in the Redis
             await redisClient.set(redisKey, JSON.stringify(sessionData), {
                 EX: 604800
             });
 
-
+            // Generate refreshToken
             const refreshToken = jwt.sign({
                 userId: user._id,
                 sessionId: sessionId
             }, process.env.JWT_REFRESH_SECRET!, { expiresIn: '7d' });
 
-
+            // Generate accesstoken
             const accessToken = jwt.sign({
                 userId: user._id,
                 sessionId: sessionId
             }, process.env.JWT_ACCESS_SECRET!, { expiresIn: '15m' });
 
-
+            // Set refreshToken in cookies
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 secure: true,
                 sameSite: 'none'
             });
 
+            // Set accessToken in cookies
             res.cookie('accessToken', accessToken, {
                 httpOnly: true,
                 secure: true,
                 sameSite: 'none'
             });
 
+            // Return final Response of if user exists
             return res.status(200).json({
                 success: true,
                 message: 'User login successfully',
@@ -68,6 +75,7 @@ export async function login(req: Request, res: Response): Promise<any> {
 
         }
 
+        // This workflow for new user
 
         //if there is no user in the database
         const newUser = await userModel.create({
@@ -76,45 +84,51 @@ export async function login(req: Request, res: Response): Promise<any> {
             avatar
         });
 
-
+        // This is session Data
         const sessionData = {
             userId: newUser._id,
             userAgent: req.headers['user-agent'],
             ip: req.ip
         }
 
+        // Create session id
         const sessionId = crypto.randomUUID();
+
+        // Redis key
         const redisKey: string = `session:${newUser._id}:${sessionId}`;
 
+        // Set session in the Redis
         await redisClient.set(redisKey, JSON.stringify(sessionData), {
             EX: 604800
         });
 
-
+        // Generate refreshToken
         const refreshToken = jwt.sign({
             userId: newUser._id,
             sessionId: sessionId
         }, process.env.JWT_REFRESH_SECRET!, { expiresIn: '7d' });
 
-
+        // Generate accessToken
         const accessToken = jwt.sign({
             userId: newUser._id,
             sessionId: sessionId
         }, process.env.JWT_ACCESS_SECRET!, { expiresIn: '15m' });
 
-
+        // Set refreshToken in cookies
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: true,
             sameSite: 'none'
         });
 
+        // Set accessToken in cookies
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
             secure: true,
             sameSite: 'none'
         });
 
+        // Return final Response fron new user
         return res.status(201).json({
             success: true,
             message: 'User Registerd successfully',
@@ -129,6 +143,7 @@ export async function login(req: Request, res: Response): Promise<any> {
 
 
     } catch (error: any) {
+        console.error('Login api error', error);
         console.error(error);
         res.status(500).json({
             success: false,
