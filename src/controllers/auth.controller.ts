@@ -144,7 +144,6 @@ export async function login(req: Request, res: Response): Promise<any> {
 
     } catch (error: any) {
         console.error('Login api error', error);
-        console.error(error);
         res.status(500).json({
             success: false,
             message: 'Internal server error'
