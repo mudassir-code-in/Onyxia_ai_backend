@@ -247,13 +247,13 @@ export async function refreshToken(req: Request, res: Response): Promise<any> {
 
         // Generate new refreshTokem
         const newRefreshToken = jwt.sign({
-            user: decoded.userId,
+            userId: decoded.userId,
             sessionId: decoded.sessionId
         }, process.env.JWT_REFRESH_SECRET!, { expiresIn: '7d' });
 
         // Generate accessToken
         const accessToken = jwt.sign({
-            user: decoded.userId,
+            userId: decoded.userId,
             sessionId: decoded.sessionId
         }, process.env.JWT_ACCESS_SECRET!, { expiresIn: '15m' });
 
@@ -275,8 +275,8 @@ export async function refreshToken(req: Request, res: Response): Promise<any> {
 
         // Final response
         return res.status(200).json({
-            seccess: false,
-            message: 'Access Token generated successfully'
+            success: true,
+            message: 'Access Token generation successful'
         })
 
     } catch (error: any) {
