@@ -223,7 +223,7 @@ export async function refreshToken(req: Request, res: Response): Promise<any> {
         }
 
         // Parse the sessionData
-        const session = JSON.parse(sessionData) ;
+        const session = JSON.parse(sessionData);
 
         // Check the userAgent
         if (session.userAgent !== req.headers['user-agent']) {
@@ -285,5 +285,39 @@ export async function refreshToken(req: Request, res: Response): Promise<any> {
             success: false,
             message: 'Internal server error'
         });
+    }
+}
+
+
+//is user login. checkAuth api
+export async function checkAuth(req: Request, res: Response) {
+    try {
+
+        const decoded = (req as any).user;
+
+        // Find user
+        const user = await userModel.findById(decoded.userId);
+
+        // If there is no user in the Database
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Final response
+        return res.status(200).json({
+            success: true,
+            user: {
+                name: user.name,
+                email: user.email,
+                avatar: user.avatar
+            }
+        })
+
+    } catch (error: any) {
+        console.error('chekAuth api error', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        })
     }
 }
