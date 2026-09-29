@@ -3,19 +3,44 @@ import redisClient from '../config/redis.config.js';
 import type { Request, Response } from 'express';
 import { userModel } from '../models/user.model.js';
 import crypto from 'crypto';
+import { OAuth2Client } from 'google-auth-library';
 
-
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID!);
 
 // Login api
 export async function login(req: Request, res: Response): Promise<any> {
     try {
-        const { name, email, avatar } = req.body;
+        const { token } = req.body;
 
+        if (!token) {
+            return res.status(400).json({
+                success: false,
+                message: 'Google token is required'
+            });
+        }
+
+        // Verify Google token securely to get user details
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID!,
+        });
+
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid Google Token'
+            });
+        }
+
+        
+        const name = payload.name || '';
+        const email = payload.email;
+        const avatar = payload.picture || '';
 
         const user = await userModel.findOne({ email });
 
-
-        // if there is a user in the database
+        // If there is a user in the database
         if (user) {
 
             // This is session Data
@@ -77,7 +102,7 @@ export async function login(req: Request, res: Response): Promise<any> {
 
         // This workflow for new user
 
-        //if there is no user in the database
+        // If there is no user in the database
         const newUser = await userModel.create({
             name,
             email,
@@ -131,7 +156,7 @@ export async function login(req: Request, res: Response): Promise<any> {
         // Return final Response fron new user
         return res.status(201).json({
             success: true,
-            message: 'User Registerd successfully',
+            message: 'User Registered successfully',
             user: {
                 name: newUser.name,
                 email: newUser.email,
@@ -139,15 +164,12 @@ export async function login(req: Request, res: Response): Promise<any> {
             }
         });
 
-
-
-
     } catch (error: any) {
         console.error('Login api error', error);
         res.status(500).json({
             success: false,
             message: 'Internal server error'
-        })
+        });
     }
 }
 
