@@ -7,7 +7,7 @@ import { connectRedis } from './config/redis.config.js';
 connectDB();
 connectRedis();
 
-const PORT = 5000;
+const PORT = 3000;
 
 
 app.listen(PORT, () => {

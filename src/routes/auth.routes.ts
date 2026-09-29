@@ -10,8 +10,8 @@ export const authRouter = express.Router();
 // handle routes
 authRouter.post('/login', login);
 authRouter.post('/logout', checkAccessToken, logout);
-authRouter.post('/refresh-token', refreshToken);
-authRouter.post('/check-auth', checkAccessToken, checkAuth);
+authRouter.get('/refresh-token', refreshToken);
+authRouter.get('/check-auth', checkAccessToken, checkAuth);
 
 
 
