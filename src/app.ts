@@ -2,6 +2,7 @@ import express from 'express';
 import { authRouter } from './routes/auth.routes.js';
 import cookieParser from 'cookie-parser'
 import cors from 'cors';
+import { aiRouter } from './routes/ai.routes.js';
 
 
 export const app = express();
@@ -16,3 +17,4 @@ app.use(cors({
 
 //Routes
 app.use('/api/auth', authRouter);
+app.use('/api/ai', aiRouter);
