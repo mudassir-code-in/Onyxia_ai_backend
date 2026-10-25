@@ -1,20 +1,22 @@
 import type { Request, Response } from "express";
-import { generateGeminiResponse } from "../services/geminiServices.js";
+import { generateAiResponse } from "../services/llm.service.js";
 
 
 export async function handleAiPrompt(req: Request, res: Response){
     try {
 
-        const {prompt} = req.body;
+        const decoded = (req as any).user;
+        const sessionId = decoded.sessionId;
+        const {message} = req.body;
 
-        if(!prompt){
+        if(!message){
             return res.status(400).json({
                 success: false,
-                message: 'Prompt is required'
+                prompt: 'Prompt is required'
             });
         }
 
-       const result = await generateGeminiResponse(prompt);
+       const result = await generateAiResponse(message, sessionId);
 
        return res.status(200).json({success: true, result});
         
