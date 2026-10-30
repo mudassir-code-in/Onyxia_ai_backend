@@ -77,14 +77,16 @@ export async function login(req: Request, res: Response): Promise<any> {
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 secure: true,
-                sameSite: 'none'
+                sameSite: 'none',
+                maxAge: 7 * 24 * 60 * 60 * 1000
             });
 
             // Set accessToken in cookies
             res.cookie('accessToken', accessToken, {
                 httpOnly: true,
                 secure: true,
-                sameSite: 'none'
+                sameSite: 'none',
+                maxAge: 15 * 60 * 1000
             });
 
             // Return final Response of if user exists
@@ -143,14 +145,16 @@ export async function login(req: Request, res: Response): Promise<any> {
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: true,
-            sameSite: 'none'
+            sameSite: 'none',
+            maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
         // Set accessToken in cookies
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
             secure: true,
-            sameSite: 'none'
+            sameSite: 'none',
+            maxAge: 15 * 60 * 1000
         });
 
         // Return final Response fron new user
@@ -284,7 +288,8 @@ export async function refreshToken(req: Request, res: Response): Promise<any> {
         res.cookie('refreshToken', newRefreshToken, {
             httpOnly: true,
             secure: true,
-            sameSite: 'none'
+            sameSite: 'none',
+            maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
 
@@ -292,7 +297,8 @@ export async function refreshToken(req: Request, res: Response): Promise<any> {
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
             secure: true,
-            sameSite: 'none'
+            sameSite: 'none',
+            maxAge: 15 * 60 * 1000
         });
 
         // Final response
